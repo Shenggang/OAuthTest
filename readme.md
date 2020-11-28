@@ -17,7 +17,7 @@ To run this quickstart, you'll need:
 
 * Python 2.7 or Python 3.5+
 
-* The _pip_ package management tool
+* The `pip` package management tool
 
 * The Google APIs Client Library for Python:
 
