@@ -21,8 +21,8 @@ To run this quickstart, you'll need:
 
 * The Google APIs Client Library for Python:
 
-'pip install --upgrade google-api-python-client'
+`pip install --upgrade google-api-python-client`
 
 * The google-auth-oauthlib and google-auth-httplib2 libraries for user authorization.
 
-'pip install --upgrade google-auth-oauthlib google-auth-httplib2'
+`pip install --upgrade google-auth-oauthlib google-auth-httplib2`
