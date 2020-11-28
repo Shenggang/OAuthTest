@@ -1,9 +1,9 @@
-## Relevant documentations ##
+# Relevant documentations #
 
-# Python Youtube API Documentation #
+## Python Youtube API Documentation ##
 https://github.com/googleapis/google-api-python-client
 
-# Tutorial #
+## Tutorial ##
 https://github.com/CoreyMSchafer/code_snippets/tree/master/Python/YouTube-API
 
 
