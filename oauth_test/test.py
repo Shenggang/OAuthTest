@@ -7,13 +7,18 @@
 import os
 import json
 
+
 import google_auth_oauthlib.flow as gflow
 from google.oauth2 import credentials
 import googleapiclient.discovery
 import googleapiclient.errors
+from google.auth.transport import requests
 
 scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 api_key = 'AIzaSyCxSg3qNKgoA7Nm2pkxu10lNK1NJFuZxV8'
+client_id = '832759208130-2b9pkngpukri2g7ckathsgnpm2o45bmg.apps.googleusercontent.com'
+client_secret = 'iO5itWBlzz213pXsAoxF3kmF'
+token_uri = 'https://oauth2.googleapis.com/token'
 
 
 def pprint(content, indent=4):
@@ -37,14 +42,17 @@ def main():
     cred_json = flow.credentials.to_json()
     pprint(cred_json)
 
-    cred = credentials.Credentials.from_authorized_user_info(json.loads(cred_json), scopes)
+    # cred = credentials.Credentials.from_authorized_user_info(json.loads(cred_json), scopes)
+    cred = credentials.Credentials(None, refresh_token=flow.credentials.refresh_token,
+                                   token_uri=token_uri, client_id=client_id, client_secret=client_secret)
+    cred.refresh(requests.Request())
 
-    youtube = googleapiclient.discovery.build(api_service_name, api_version, credentials= cred)
+    youtube = googleapiclient.discovery.build(api_service_name, api_version, credentials=cred)
 
     request = youtube.search().list(
         part="snippet",
         channelId="UCS9uQI-jC3DE0L4IpXyvr6w",
-        maxResults=50,
+        maxResults=3,
         type="video"
     )
 

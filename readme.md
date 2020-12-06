@@ -10,6 +10,10 @@ https://stackoverflow.com/questions/41016537/youtube-apis-access-mutiple-youtube
 
 https://www.youtube.com/watch?v=vQQEaSnQ_bs&list=RDCMUCCezIgC97PvUuR4_gbFUs5g&index=2&ab_channel=CoreySchafer
 
+## WxPython doc ##
+
+https://wiki.wxpython.org/Getting%20Started
+
 
 
 # Prerequisites #
@@ -26,3 +30,7 @@ To run this quickstart, you'll need:
 * The google-auth-oauthlib and google-auth-httplib2 libraries for user authorization.
 
   `pip install --upgrade google-auth-oauthlib google-auth-httplib2`
+
+* WxPython for GUI
+
+  'pip install -U wxPython'
