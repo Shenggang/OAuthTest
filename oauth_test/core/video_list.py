@@ -1,5 +1,5 @@
 from googleapiclient import discovery
-
+import io
 
 class VideoList:
 
@@ -35,6 +35,15 @@ class VideoList:
 
     def load_from_list(self, ll):
         self._video_list = ll
+
+    def load_from_file(self, file="video_list.data"):
+        self._video_list.clear()
+        with io.open(file, "r", encoding="utf-8") as stream:
+            self._video_list = stream.read().split(",")
+
+    def dump_list(self, file="video_list.data"):
+        with io.open(file, "w", encoding="utf-8") as stream:
+            stream.write(",".join(self._video_list))
 
     def load_next_page(self,
                        next_page=None):

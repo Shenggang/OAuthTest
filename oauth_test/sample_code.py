@@ -47,6 +47,8 @@ def main():
                                    token_uri=token_uri, client_id=client_id, client_secret=client_secret)
     cred.refresh(requests.Request())
 
+    pprint(cred.to_json())
+
     youtube = googleapiclient.discovery.build(api_service_name, api_version, credentials=cred)
 
     request = youtube.search().list(
