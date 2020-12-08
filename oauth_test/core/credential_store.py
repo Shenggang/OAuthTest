@@ -42,7 +42,7 @@ class NamedCredential:
     @property
     def credential(self):
         if not self._cred:
-            client_info = self._client_info['installed']
+            client_info = self._client_info['web']
             token_uri = client_info['token_uri']
             client_id = client_info['client_id']
             client_secret = client_info['client_secret']

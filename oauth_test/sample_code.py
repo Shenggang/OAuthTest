@@ -42,6 +42,7 @@ def main():
     cred_json = flow.credentials.to_json()
     pprint(cred_json)
 
+    #flow.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")
     f2 = gflow.InstalledAppFlow.from_client_secrets_file(
         secret, scopes=scopes)
     f2.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")

@@ -11,6 +11,12 @@ class VideoList:
         self._api_version = "v3"
         self._video_list = []
 
+    def __getitem__(self, index):
+        return self._video_list[index]
+
+    def __len__(self):
+        return len(self._video_list)
+
     @property
     def api_key(self):
         return self._api_key
@@ -26,10 +32,6 @@ class VideoList:
     @property
     def api_version(self):
         return self._api_version
-
-    @property
-    def video_list(self):
-        return self._video_list
 
     def add_entry(self, key, arg):
         self.video_list[key] = arg
