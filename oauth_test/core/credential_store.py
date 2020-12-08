@@ -84,7 +84,6 @@ class CredentialStore:
     def __init__(self,
                  client_list=None):
         self._credentials = []
-        self._id_list = []
         self._client_list = client_list
         self._scopes = ["https://www.googleapis.com/auth/youtube"]
 
@@ -107,20 +106,10 @@ class CredentialStore:
         self._client_list = value
 
     def append(self, named_cred):
-        idx = self.find_id(named_cred.account_id)
-        if idx > -1:
-            self._credentials[idx].revoke()
-            self._credentials[idx] = named_cred
-        else:
-            self._credentials.append(named_cred)
-            self._id_list.append(named_cred.account_id)
+        self._credentials.append(named_cred)
 
-    def find_id(self, acc_id):
-        try:
-            idx = self._id_list.index(acc_id)
-        except ValueError:
-            return -1
-        return idx
+    def delete_at(self, idx):
+        self._credentials.remove(self._credentials[idx])
 
     def authenticate(self, file_number=0):
         flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
@@ -134,6 +123,8 @@ class CredentialStore:
             mine=True,
         )
         my_detail = find_me.execute()
+        if 'items' not in my_detail:
+            return
         my_items = my_detail['items'][0]
         my_id = my_items['id']
         my_name = my_items['snippet']['title']
@@ -141,6 +132,3 @@ class CredentialStore:
         cred = NamedCredential(flow.credentials.refresh_token, self._client_list[file_number],
                                cred=flow.credentials, acc_id=my_id, acc_name=my_name, profile_image=my_thumbnail)
         self.append(cred)
-
-
-

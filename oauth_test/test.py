@@ -1,10 +1,13 @@
 import json
+import subprocess
+import sys
+import time
 
 from core.util import pprint
 import core.video_list as video_list
 import core.credential_store as credential_store
 from core.video_rater import VideoRater
-import data.data_portal as data_portal
+from data.data_portal import DataPortal
 
 import googleapiclient.discovery
 
@@ -39,23 +42,22 @@ def load_client_secret_test():
             print(cs)
 
 
-def auth_save_test():
-    dp = data_portal.DataPortal()
-    c_store = dp.load_from_plain_text(None)
-    c_store.authenticate()
-    dp.dump_into_plain_text(c_store)
+def auth_save_test(number):
+    c_store = DataPortal.load_from_plain_text(None)
+    for i in range(number):
+        c_store.authenticate()
+        time.sleep(4)
+    DataPortal.dump_into_plain_text(c_store)
 
 
 def auth_load_test():
-    dp = data_portal.DataPortal()
-    credentials = dp.load_from_plain_text()
+    credentials = DataPortal.load_from_plain_text()
     for cred in credentials:
         pprint(cred.to_dict())
 
 
 def multi_cred_test():
-    dp = data_portal.DataPortal()
-    credentials = dp.load_from_plain_text()
+    credentials = DataPortal.load_from_plain_text()
     for cred in credentials:
         youtube = googleapiclient.discovery.build("youtube", "v3", credentials=cred.credential)
         find_me = youtube.channels().list(
@@ -67,12 +69,17 @@ def multi_cred_test():
 
 
 def rater_test():
-    dp = data_portal.DataPortal()
-    credentials = dp.load_from_plain_text()
+    credentials = DataPortal.load_from_plain_text()
     vl = video_list.VideoList(api_key)
     vl.load_from_file()
     VideoRater.rate_videos(vl, credentials)
 
+
+def multi_process_auth():
+    proc = subprocess.Popen([sys.executable, './authenticate.py'],
+                            stdout=subprocess.PIPE)
+    stdout = proc.communicate()
+    return stdout
 
 
 def main():
@@ -80,10 +87,11 @@ def main():
     # vl_dump_test()
     # vl_load_test()
     #load_client_secret_test()
-    #auth_save_test()
+    auth_save_test(5)
     #auth_load_test()
     #multi_cred_test()
-    rater_test()
+    #rater_test()
+
 
 
 if __name__ == "__main__":
