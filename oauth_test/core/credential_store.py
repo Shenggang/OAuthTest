@@ -1,6 +1,9 @@
 import requests
+
 import google.auth.transport.requests as g_requests
+import google_auth_oauthlib.flow as gflow
 from google.oauth2 import credentials
+from googleapiclient import discovery
 
 
 class NamedCredential:
@@ -39,12 +42,14 @@ class NamedCredential:
     @property
     def credential(self):
         if not self._cred:
-            token_uri = self._client_info['token_uri']
-            client_id = self._client_info['client_id']
-            client_secret = self._client_info['client_secret']
+            client_info = self._client_info['installed']
+            token_uri = client_info['token_uri']
+            client_id = client_info['client_id']
+            client_secret = client_info['client_secret']
             cred = credentials.Credentials(None, refresh_token=self._refresh_token, token_uri=token_uri,
                                            client_id=client_id, client_secret=client_secret)
-            cred.refresh(requests.Request())
+            cred.refresh(g_requests.Request())
+            self._cred = cred
         elif not self._cred.valid:
             self.refresh()
         return self._cred
@@ -64,18 +69,42 @@ class NamedCredential:
         if self._cred:
             self._cred.refresh(g_requests.Request())
 
+    def to_dict(self):
+        mydict = dict()
+        mydict['refresh_token'] = self._refresh_token
+        mydict['client_index'] = self._client_info['client_index']
+        mydict['account_id'] = self._acc_id
+        mydict['account_name'] = self._acc_name
+        mydict['thumbnail'] = self._pf_image
+        return mydict
+
 
 class CredentialStore:
 
-    def __init__(self):
+    def __init__(self,
+                 client_list=None):
         self._credentials = []
         self._id_list = []
+        self._client_list = client_list
+        self._scopes = ["https://www.googleapis.com/auth/youtube"]
 
     def __getitem__(self, index):
         return self._credentials[index]
 
     def __len__(self):
         return len(self._credentials)
+
+    @property
+    def scopes(self):
+        return self._scopes
+
+    @property
+    def client_list(self):
+        return self._client_list
+
+    @client_list.setter
+    def client_list(self, value):
+        self._client_list = value
 
     def append(self, named_cred):
         idx = self.find_id(named_cred.account_id)
@@ -92,4 +121,26 @@ class CredentialStore:
         except ValueError:
             return -1
         return idx
+
+    def authenticate(self, file_number=0):
+        flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
+                                                         scopes=self._scopes)
+        flow.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")
+        youtube = discovery.build("youtube", "v3", credentials=flow.credentials)
+
+        # find my details
+        find_me = youtube.channels().list(
+            part="snippet",
+            mine=True,
+        )
+        my_detail = find_me.execute()
+        my_items = my_detail['items'][0]
+        my_id = my_items['id']
+        my_name = my_items['snippet']['title']
+        my_thumbnail = my_items['snippet']['thumbnails']['default']['url']
+        cred = NamedCredential(flow.credentials.refresh_token, self._client_list[file_number],
+                               cred=flow.credentials, acc_id=my_id, acc_name=my_name, profile_image=my_thumbnail)
+        self.append(cred)
+
+
 

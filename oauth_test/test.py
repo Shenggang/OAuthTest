@@ -1,5 +1,11 @@
-# noinspection PyUnresolvedReferences
-from core import video_list
+import json
+
+from core.util import pprint
+import core.video_list as video_list
+import core.credential_store as credential_store
+import data.data_portal as data_portal
+
+import googleapiclient.discovery
 
 api_key = 'AIzaSyCxSg3qNKgoA7Nm2pkxu10lNK1NJFuZxV8'
 
@@ -24,10 +30,48 @@ def vl_load_test():
     print(vl.video_list[0:4])
 
 
+def load_client_secret_test():
+    with open("client_secret.json") as file:
+        strings = file.read().split('\n,\n')
+        for s in strings:
+            cs = json.loads(s)
+            print(cs)
+
+
+def auth_save_test():
+    dp = data_portal.DataPortal()
+    dp.credentials.authenticate()
+    dp.dump_into_plain_text()
+
+
+def auth_load_test():
+    dp = data_portal.DataPortal()
+    dp.load_from_plain_text()
+    for cred in dp.credentials:
+        pprint(cred.to_dict())
+
+
+def multi_cred_test():
+    dp = data_portal.DataPortal()
+    dp.load_from_plain_text()
+    for cred in dp.credentials:
+        youtube = googleapiclient.discovery.build("youtube", "v3", credentials=cred.credential)
+        find_me = youtube.channels().list(
+            part="snippet",
+            mine=True,
+        )
+        my_detail = find_me.execute()
+        pprint(my_detail)
+
+
 def main():
-    # vl_search_test()
-    vl_dump_test()
-    vl_load_test()
+    #vl_search_test()
+    # vl_dump_test()
+    # vl_load_test()
+    #load_client_secret_test()
+    #auth_save_test()
+    #auth_load_test()
+    multi_cred_test()
 
 
 if __name__ == "__main__":

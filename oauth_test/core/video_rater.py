@@ -27,7 +27,6 @@ class VideoRater:
     def credential_store(self, value):
         self._c_store = value
 
-    def rate_videos(self):
-        # decide interfaces first
+
 
 
