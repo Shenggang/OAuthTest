@@ -91,18 +91,13 @@ class CredentialStore:
             self._storage = [0]*size
 
         def increment(self, index):
-            print("in increment, 1 ", self._storage)
             self._storage[index] += 1
-            print("in increment, 2 ", self._storage)
-            print(index)
 
         def decrement(self, index):
             self._storage[index] -= 1
 
         def next(self):
             val, idx = min((val, idx) for (idx, val) in enumerate(self._storage))
-            print("in next ", self._storage)
-            print(idx)
             return idx
 
     def __init__(self,
@@ -136,7 +131,6 @@ class CredentialStore:
 
     def authenticate(self):
         file_number = self._allocator.next()
-        print("In authenticate, ", file_number)
         flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
                                                          scopes=self._scopes)
         flow.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")

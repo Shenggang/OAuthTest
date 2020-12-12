@@ -87,10 +87,10 @@ def main():
     # vl_dump_test()
     # vl_load_test()
     #load_client_secret_test()
-    auth_save_test(6)
+    #auth_save_test(6)
     #auth_load_test()
     #multi_cred_test()
-    #rater_test()
+    rater_test()
 
 
 
