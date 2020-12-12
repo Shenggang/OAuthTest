@@ -17,9 +17,9 @@ https://wiki.wxpython.org/Getting%20Started
 
 
 # Prerequisites #
-To run this quickstart, you'll need:
+You'll need:
 
-* Python 2.7 or Python 3.5+
+* Python 3.5+
 
 * The `pip` package management tool
 
@@ -31,6 +31,10 @@ To run this quickstart, you'll need:
 
   `pip install --upgrade google-auth-oauthlib google-auth-httplib2`
 
-* WxPython for GUI
-
-  'pip install -U wxPython'
+* TKinter, check if installed
+  ```
+  import tkinter
+  tkinter._test()
+  ```
+  otherwise check https://tkdocs.com/tutorial/install.html for installation details.
+ 
