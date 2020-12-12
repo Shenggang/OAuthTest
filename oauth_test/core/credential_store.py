@@ -32,6 +32,10 @@ class NamedCredential:
         return self._client_info
 
     @property
+    def client_number(self):
+        return self._client_info['client_index']
+
+    @property
     def account_id(self):
         return self._acc_id
 
@@ -42,7 +46,7 @@ class NamedCredential:
     @property
     def credential(self):
         if not self._cred:
-            client_info = self._client_info['web']
+            client_info = self._client_info['installed']
             token_uri = client_info['token_uri']
             client_id = client_info['client_id']
             client_secret = client_info['client_secret']
@@ -81,10 +85,31 @@ class NamedCredential:
 
 class CredentialStore:
 
+    class Allocator:
+
+        def __init__(self, size):
+            self._storage = [0]*size
+
+        def increment(self, index):
+            print("in increment, 1 ", self._storage)
+            self._storage[index] += 1
+            print("in increment, 2 ", self._storage)
+            print(index)
+
+        def decrement(self, index):
+            self._storage[index] -= 1
+
+        def next(self):
+            val, idx = min((val, idx) for (idx, val) in enumerate(self._storage))
+            print("in next ", self._storage)
+            print(idx)
+            return idx
+
     def __init__(self,
-                 client_list=None):
+                 client_list):
         self._credentials = []
         self._client_list = client_list
+        self._allocator = self.Allocator(len(client_list))
         self._scopes = ["https://www.googleapis.com/auth/youtube"]
 
     def __getitem__(self, index):
@@ -101,17 +126,17 @@ class CredentialStore:
     def client_list(self):
         return self._client_list
 
-    @client_list.setter
-    def client_list(self, value):
-        self._client_list = value
-
     def append(self, named_cred):
         self._credentials.append(named_cred)
+        self._allocator.increment(named_cred.client_number)
 
     def delete_at(self, idx):
+        self._allocator.decrement(self._credentials[idx].client_number)
         self._credentials.remove(self._credentials[idx])
 
-    def authenticate(self, file_number=0):
+    def authenticate(self):
+        file_number = self._allocator.next()
+        print("In authenticate, ", file_number)
         flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
                                                          scopes=self._scopes)
         flow.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")
