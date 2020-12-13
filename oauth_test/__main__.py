@@ -1,14 +1,13 @@
-import PIL.ImageTk
-import PIL.Image
 from tkinter import *
+
+import app
 
 
 def main():
     # start app
     root = Tk()
-    img = PIL.ImageTk.PhotoImage(PIL.Image.open("unnamed.jpg"))
-    panel = Label(root, image=img)
-    panel.pack(side="bottom", fill="both", expand="yes")
+    app.MainWindow(root)
+    root.geometry('800x400')
     root.mainloop()
 
 
