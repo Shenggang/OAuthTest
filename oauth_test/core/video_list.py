@@ -51,6 +51,8 @@ class VideoList:
             return
         with io.open(file, "r", encoding="utf-8") as stream:
             self._video_list = stream.read().split(",")
+            if self._video_list[0] == '':
+                self._video_list = []
         self.print("Loaded %i videos" % len(self._video_list))
 
     def dump_list(self, file="video_list.data"):
