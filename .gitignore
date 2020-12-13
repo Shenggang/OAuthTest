@@ -1,6 +1,9 @@
 backup/
 .idea/
 *.data
+api_key.txt
+client_secret.json
+run.bat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -127,3 +130,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
