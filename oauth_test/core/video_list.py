@@ -1,5 +1,9 @@
-from googleapiclient import discovery
 import io
+
+from .util import handle_http_exception
+
+from googleapiclient import discovery
+import googleapiclient.errors as google_errors
 
 
 class VideoList:
@@ -40,16 +44,24 @@ class VideoList:
         self._video_list = ll
 
     def load_from_file(self, file="video_list.data"):
+        self.print("Loading Video list from save file")
         self._video_list.clear()
         with io.open(file, "r", encoding="utf-8") as stream:
             self._video_list = stream.read().split(",")
+        self.print("Loaded %i videos" % len(self._video_list))
 
     def dump_list(self, file="video_list.data"):
         with io.open(file, "w", encoding="utf-8") as stream:
             stream.write(",".join(self._video_list))
 
-    def load_next_page(self,
-                       next_page=None):
+    def load_next_page_into(self,
+                            video_list,
+                            next_page=None):
+        if not next_page:
+            self.print("Loading videos from first page")
+        else:
+            self.print("Loading videos, page token = ", next_page)
+
         youtube = discovery.build(self.api_service_name, self.api_version, developerKey=self.api_key)
         request = youtube.search().list(
             part="snippet",
@@ -59,18 +71,27 @@ class VideoList:
             type="video",
             pageToken=next_page
         )
-        response = request.execute()
+        try:
+            response = request.execute()
+        except google_errors.HttpError as e:
+            handle_http_exception(e, self.print)
+            self.print('Loading video list failed.')
+            return None
         for vid in response['items']:
-            self.video_list.append(vid['id']['videoId'])
+            video_list.append(vid['id']['videoId'])
         token = response.get('nextPageToken')
         if token:
-            self.load_next_page(next_page=token)
+            return self.load_next_page_into(video_list, next_page=token)
+        return video_list
 
     def load_all_pages(self):
-        self.video_list.clear()
-        self.load_next_page()
+        self.print("Loading all pages")
+        vl = self.load_next_page_into([])
+        if not vl:
+            self._video_list = vl
 
     def update(self):
+        self.print("Updating Video List")
         # build request
         youtube = discovery.build(self.api_service_name, self.api_version, developerKey=self.api_key)
         request = youtube.search().list(
@@ -81,7 +102,13 @@ class VideoList:
             type="video"
         )
         # check for length
-        response = request.execute()
-        if response['pageInfo']['totalResults'] != len(self.video_list):
+        try:
+            response = request.execute()
+        except google_errors.HttpError as e:
+            handle_http_exception(e, self.print)
+            self.print('Updating video list failed.')
+            return
+        if response['pageInfo']['totalResults'] != len(self._video_list):
             # if length not equal, reconstruct
             self.load_all_pages()
+

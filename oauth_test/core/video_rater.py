@@ -8,14 +8,13 @@ import googleapiclient.errors as google_errors
 
 class VideoRater:
 
-    @staticmethod
-    def rate_videos(video_list, credential_store):
-        assert isinstance(video_list, VideoList)
-        assert isinstance(credential_store, CredentialStore)
+    def print(self, *args):
+        print(*args)
 
+    def rate_videos(self, video_list, credential_store):
         for cred in credential_store:
             youtube = googleapiclient.discovery.build("youtube", "v3", credentials=cred.credential)
-            print("Processing ", cred.account_name)
+            self.print("Processing ", cred.account_name)
             for vid in video_list:
                 request = youtube.videos().getRating(
                     id=vid
@@ -23,9 +22,9 @@ class VideoRater:
                 try:
                     rate = request.execute()
                 except google_errors.HttpError as e:
-                    handle_http_exception(e)
+                    handle_http_exception(e, self.print)
                     break
-                print("Video = ", vid, "is ", rate['items'][0]['rating'])
+                self.print("Video = ", vid, "is ", rate['items'][0]['rating'])
                 if rate['items'][0]['rating'] != "dislike":
                     request = youtube.videos().rate(
                         id=vid,
@@ -34,7 +33,7 @@ class VideoRater:
                     try:
                         response = request.execute()
                         if response == "":
-                            print(vid, " Done")
+                            VideoRater.print(vid, " Done")
                     except google_errors.HttpError as e:
                         handle_http_exception(e)
                         break

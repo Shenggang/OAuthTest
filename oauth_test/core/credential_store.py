@@ -1,7 +1,10 @@
+from .util import handle_http_exception
+
 import requests
 
 import google.auth.transport.requests as g_requests
 import google_auth_oauthlib.flow as gflow
+import googleapiclient.errors as google_errors
 from google.oauth2 import credentials
 from googleapiclient import discovery
 
@@ -32,7 +35,7 @@ class NamedCredential:
         return self._client_info
 
     @property
-    def client_number(self):
+    def client_index(self):
         return self._client_info['client_index']
 
     @property
@@ -85,6 +88,9 @@ class NamedCredential:
 
 class CredentialStore:
 
+    def print(self, *args):
+        print(*args)
+
     class Allocator:
 
         def __init__(self, size):
@@ -123,17 +129,17 @@ class CredentialStore:
 
     def append(self, named_cred):
         self._credentials.append(named_cred)
-        self._allocator.increment(named_cred.client_number)
+        self._allocator.increment(named_cred.client_index)
 
     def delete_at(self, idx):
-        self._allocator.decrement(self._credentials[idx].client_number)
+        self._allocator.decrement(self._credentials[idx].client_index)
         self._credentials.remove(self._credentials[idx])
 
     def authenticate(self):
         file_number = self._allocator.next()
         flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
                                                          scopes=self._scopes)
-        flow.run_local_server(prot=8080, prompt="consent", authorization_prompt_message="")
+        flow.run_local_server(prot=8080, prompt='consent', authorization_prompt_message="")
         youtube = discovery.build("youtube", "v3", credentials=flow.credentials)
 
         # find my details
@@ -141,9 +147,14 @@ class CredentialStore:
             part="snippet",
             mine=True,
         )
-        my_detail = find_me.execute()
+        try:
+            my_detail = find_me.execute()
+        except google_errors.HttpError as e:
+            handle_http_exception(e, self.print)
+            self.print('Authentication failed.')
+            return 0
         if 'items' not in my_detail:
-            return
+            return 0
         my_items = my_detail['items'][0]
         my_id = my_items['id']
         my_name = my_items['snippet']['title']
@@ -151,3 +162,4 @@ class CredentialStore:
         cred = NamedCredential(flow.credentials.refresh_token, self._client_list[file_number],
                                cred=flow.credentials, acc_id=my_id, acc_name=my_name, profile_image=my_thumbnail)
         self.append(cred)
+        return 1
