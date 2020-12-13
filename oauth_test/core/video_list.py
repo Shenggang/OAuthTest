@@ -1,4 +1,5 @@
 import io
+import os
 
 from .util import handle_http_exception
 
@@ -46,6 +47,8 @@ class VideoList:
     def load_from_file(self, file="video_list.data"):
         self.print("Loading Video list from save file")
         self._video_list.clear()
+        if not os.path.isfile(file):
+            return
         with io.open(file, "r", encoding="utf-8") as stream:
             self._video_list = stream.read().split(",")
         self.print("Loaded %i videos" % len(self._video_list))
@@ -89,6 +92,7 @@ class VideoList:
         vl = self.load_next_page_into([])
         if not vl:
             self._video_list = vl
+        self.print("Loaded %d videos" % len(self._video_list))
 
     def update(self):
         self.print("Updating Video List")

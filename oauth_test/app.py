@@ -134,6 +134,11 @@ class MainWindow:
         # close window
         self._mainframe.master.destroy()
 
+    def _insert_handle(self, place, string):
+        self._log_display.insert(place, string)
+        self._log_display.see('end')
+
+
 
 
 

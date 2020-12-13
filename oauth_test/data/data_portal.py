@@ -1,5 +1,6 @@
 import json
 import io
+import os
 
 from core import credential_store
 from core.GUI.gui import GuiCredentialStore
@@ -21,6 +22,8 @@ class DataPortal:
         c_store = credential_store.CredentialStore(DataPortal.client_list)
         if not filename:
             return c_store
+        if not os.path.isfile(filename):
+            return
         with io.open(filename, 'r', encoding='utf-8') as file:
             cred_list = file.read().split("\n,\n")
             for cred in cred_list:
@@ -40,6 +43,8 @@ class DataPortal:
         c_store = GuiCredentialStore(DataPortal.client_list, callback)
         if not filename:
             return c_store
+        if not os.path.isfile(filename):
+            return
         with io.open(filename, 'r', encoding='utf-8') as file:
             cred_list = file.read().split("\n,\n")
             for cred in cred_list:

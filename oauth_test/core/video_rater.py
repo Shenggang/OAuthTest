@@ -33,8 +33,8 @@ class VideoRater:
                     try:
                         response = request.execute()
                         if response == "":
-                            VideoRater.print(vid, " Done")
+                            self.print(vid, " Done")
                     except google_errors.HttpError as e:
-                        handle_http_exception(e)
+                        handle_http_exception(e, self.print)
                         break
 
