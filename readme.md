@@ -38,3 +38,6 @@ You'll need:
   ```
   otherwise check https://tkdocs.com/tutorial/install.html for installation details.
  
+* Install current package:
+  `cd oauth_test`
+  `pip install --editable .`
