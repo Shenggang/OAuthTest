@@ -136,7 +136,7 @@ class MainWindow:
 
     def _insert_handle(self, place, string):
         self._log_display.insert(place, string)
-        self._log_display.see('end')
+        self._log_display.yview(END)
 
 
 

@@ -69,6 +69,8 @@ class DataPortal:
     @staticmethod
     def dump_into_plain_text(c_store,
                              filename="credential_store.data"):
+        if not c_store:
+            return
         with io.open(filename, 'w', encoding='utf-8') as file:
             for cred in c_store:
                 file.write(json.dumps(cred.to_dict()))

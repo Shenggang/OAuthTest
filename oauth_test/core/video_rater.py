@@ -37,4 +37,5 @@ class VideoRater:
                     except google_errors.HttpError as e:
                         handle_http_exception(e, self.print)
                         break
+        self.print("Rating process finished")
 

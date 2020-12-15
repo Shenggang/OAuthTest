@@ -56,6 +56,8 @@ class VideoList:
         self.print("Loaded %i videos" % len(self._video_list))
 
     def dump_list(self, file="video_list.data"):
+        if not self._video_list:
+            return
         with io.open(file, "w", encoding="utf-8") as stream:
             stream.write(",".join(self._video_list))
 
@@ -92,7 +94,7 @@ class VideoList:
     def load_all_pages(self):
         self.print("Loading all pages")
         vl = self.load_next_page_into([])
-        if not vl:
+        if vl:
             self._video_list = vl
         self.print("Loaded %d videos" % len(self._video_list))
 
@@ -114,7 +116,7 @@ class VideoList:
             handle_http_exception(e, self.print)
             self.print('Updating video list failed.')
             return
-        if response['pageInfo']['totalResults'] != len(self._video_list):
+        if response['pageInfo']['totalResults'] != str(len(self._video_list)):
             # if length not equal, reconstruct
             self.load_all_pages()
 
