@@ -43,6 +43,8 @@
 ```
 至少创建一个 API密钥 并保存至 'api_key.txt'。
 
+注意，'api_key.txt'和'client_secret.json'需与'run.bat'在相同文件夹里。
+
 # 运行 #
 若你使用的是Anaconda, 可以直接双击运行 “run.bat” 文件。
 
@@ -103,6 +105,8 @@ If you have multiple client secrets, separate each by Enter comma Enter, e.g.
 {secret 2}
 ```
 Create at least one API_key and save it in 'api_key.txt' in your project directory.
+
+Note that 'api_key.txt' and 'client_secret.json' need to be placed in the same directory as 'run.bat'.
 
 # Run #
  If your Python is managed by Anaconda, just double click the 'run.bat' file.
