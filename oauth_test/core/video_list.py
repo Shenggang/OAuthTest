@@ -1,7 +1,9 @@
 import io
 import os
+import math
 
 from .util import handle_http_exception
+from .quota import QuotaCounter
 
 from googleapiclient import discovery
 import googleapiclient.errors as google_errors
@@ -99,6 +101,10 @@ class VideoList:
         self.print("Loaded %d videos" % len(self._video_list))
 
     def update(self):
+        quota = QuotaCounter.get_quota_of(0)
+        if quota < 100:
+            self.print("Not enough quota, please retry tomorrow, quota refreshes at midnight Pacific Standard Time")
+            return
         self.print("Updating Video List")
         # build request
         youtube = discovery.build(self.api_service_name, self.api_version, developerKey=self.api_key)
@@ -109,6 +115,8 @@ class VideoList:
             maxResults=1,
             type="video"
         )
+        QuotaCounter.reduce_quota_of(0, 100)
+        quota = QuotaCounter.get_quota_of(0)
         # check for length
         try:
             response = request.execute()
@@ -116,7 +124,12 @@ class VideoList:
             handle_http_exception(e, self.print)
             self.print('Updating video list failed.')
             return
-        if response['pageInfo']['totalResults'] != str(len(self._video_list)):
+        total_vids = int(response['pageInfo']['totalResults'])
+        total_pages = int(math.ceil(total_vids/50))
+        if total_vids != len(self._video_list):
+            if quota < 100*total_pages:
+                self.print("Not enough quota, please retry tomorrow, quota refreshes at midnight Pacific Standard Time")
+                return
             # if length not equal, reconstruct
             self.load_all_pages()
-
+            QuotaCounter.reduce_quota_of(0, 100*total_pages)

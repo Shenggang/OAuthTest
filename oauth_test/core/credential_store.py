@@ -1,4 +1,5 @@
 from .util import handle_http_exception
+from .quota import QuotaCounter
 
 import requests
 
@@ -137,6 +138,13 @@ class CredentialStore:
 
     def authenticate(self):
         file_number = self._allocator.next()
+        # check for enough quota, default using file 0
+        # quota cost is 1 for authentication
+        quota = QuotaCounter.get_quota_of(0)
+        if quota < 1:
+            self.print("Not enough quota, please retry tomorrow, quota refreshes at midnight Pacific Standard Time")
+            return 0
+
         flow = gflow.InstalledAppFlow.from_client_config(self._client_list[file_number],
                                                          scopes=self._scopes)
         flow.run_local_server(prot=8080, prompt='consent', authorization_prompt_message="")
@@ -162,4 +170,5 @@ class CredentialStore:
         cred = NamedCredential(flow.credentials.refresh_token, self._client_list[file_number],
                                cred=flow.credentials, acc_id=my_id, acc_name=my_name, profile_image=my_thumbnail)
         self.append(cred)
+        QuotaCounter.reduce_quota_of(0, 1)
         return 1

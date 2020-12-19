@@ -1,6 +1,7 @@
 from .video_list import VideoList
 from .credential_store import *
 from .util import handle_http_exception
+from .quota import QuotaCounter
 
 import googleapiclient.discovery
 import googleapiclient.errors as google_errors
@@ -16,6 +17,12 @@ class VideoRater:
             youtube = googleapiclient.discovery.build("youtube", "v3", credentials=cred.credential)
             self.print("Processing ", cred.account_name)
             for vid in video_list:
+                client_index = cred.client_index
+                quota = QuotaCounter.get_quota_of(client_index)
+                if quota < 51:
+                    self.print("Client %d has run out of quota" % client_index)
+                    break
+                QuotaCounter.reduce_quota_of(client_index, 1)
                 request = youtube.videos().getRating(
                     id=vid
                 )
@@ -30,6 +37,7 @@ class VideoRater:
                         id=vid,
                         rating="dislike"
                     )
+                    QuotaCounter.reduce_quota_of(client_index, 50)
                     try:
                         response = request.execute()
                         if response == "":
