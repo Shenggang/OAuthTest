@@ -2,6 +2,7 @@ import json
 import pytz
 import datetime
 
+
 class QuotaCounter:
     _initialised = False
     _quota_available = []
@@ -10,17 +11,28 @@ class QuotaCounter:
     @staticmethod
     def __initialize_quota():
         if not QuotaCounter._initialised:
+            print("init")
             # initialize quota
             with open("client_secret.json") as file:
                 strings = file.read().split('\n,\n')
-                _quota_available = range(len(strings))
-            with open("quota.data", 'r+') as file:
-                content = json.loads(file.read())
-                quotas = content['Quota_available']
-                for i in range(len(quotas)):
-                    _quota_available[i] = int(quotas[i])
-                _cur_day = datetime.date.fromisoformat(content['Date_in_PST'])
+                QuotaCounter._quota_available = [10000]*len(strings)
+            try:
+                with open("quota.data", 'r') as file:
+                    content = json.loads(file.read())
+                    quotas = content['Quota_available']
+                    for i in range(len(quotas)):
+                        QuotaCounter._quota_available[i] = int(quotas[i])
+                    QuotaCounter._cur_day = datetime.date.fromisoformat(content['Date_in_PST'])
+                    print(QuotaCounter._cur_day)
+                    if not QuotaCounter._cur_day:
+                        QuotaCounter._cur_day = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
+                        QuotaCounter._quota_available = [10000] * len(QuotaCounter._quota_available)
+            except:
+                with open("quota.data", 'a+') as file:
+                    QuotaCounter._quota_available = [10000]*len(QuotaCounter._quota_available)
+                    QuotaCounter._cur_day = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
             QuotaCounter._initialised = True
+            print(QuotaCounter._quota_available)
 
     @staticmethod
     def save_quota():

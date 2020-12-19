@@ -9,7 +9,7 @@ from core.GUI.gui import GuiCredentialStore
 class DataPortal:
 
     client_list = []
-    with open("client_secret.json") as file:
+    with open("client_secret.json", 'r') as file:
         strings = file.read().split('\n,\n')
         for i in range(len(strings)):
             s = strings[i]
