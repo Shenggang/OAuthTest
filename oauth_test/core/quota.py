@@ -4,6 +4,7 @@ import datetime
 
 
 class QuotaCounter:
+    quota_limit = 9500
     _initialised = False
     _quota_available = []
     _cur_day = None
@@ -11,11 +12,10 @@ class QuotaCounter:
     @staticmethod
     def __initialize_quota():
         if not QuotaCounter._initialised:
-            print("init")
             # initialize quota
             with open("client_secret.json") as file:
                 strings = file.read().split('\n,\n')
-                QuotaCounter._quota_available = [10000]*len(strings)
+                QuotaCounter._quota_available = [QuotaCounter.quota_limit]*len(strings)
             try:
                 with open("quota.data", 'r') as file:
                     content = json.loads(file.read())
@@ -26,13 +26,12 @@ class QuotaCounter:
                     print(QuotaCounter._cur_day)
                     if not QuotaCounter._cur_day:
                         QuotaCounter._cur_day = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
-                        QuotaCounter._quota_available = [10000] * len(QuotaCounter._quota_available)
+                        QuotaCounter._quota_available = [QuotaCounter.quota_limit] * len(QuotaCounter._quota_available)
             except:
                 with open("quota.data", 'a+') as file:
-                    QuotaCounter._quota_available = [10000]*len(QuotaCounter._quota_available)
+                    QuotaCounter._quota_available = [QuotaCounter.quota_limit]*len(QuotaCounter._quota_available)
                     QuotaCounter._cur_day = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
             QuotaCounter._initialised = True
-            print(QuotaCounter._quota_available)
 
     @staticmethod
     def save_quota():
@@ -52,7 +51,7 @@ class QuotaCounter:
         date_now = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
         if QuotaCounter._cur_day < date_now:
             QuotaCounter._cur_day = date_now
-            QuotaCounter._quota_available = [10000]*len(QuotaCounter._quota_available)
+            QuotaCounter._quota_available = [QuotaCounter.quota_limit]*len(QuotaCounter._quota_available)
 
     @staticmethod
     def get_remaining_quota():

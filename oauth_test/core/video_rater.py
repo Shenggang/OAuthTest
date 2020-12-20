@@ -1,5 +1,5 @@
-from .video_list import VideoList
-from .credential_store import *
+import time
+
 from .util import handle_http_exception
 from .quota import QuotaCounter
 
@@ -19,7 +19,8 @@ class VideoRater:
             for vid in video_list:
                 client_index = cred.client_index
                 quota = QuotaCounter.get_quota_of(client_index)
-                if quota < 52:
+                self.print("Client %d has %d remaining quota" % (client_index, quota))
+                if quota < 100:
                     self.print("Client %d has run out of quota" % client_index)
                     break
                 QuotaCounter.reduce_quota_of(client_index, 1)
@@ -39,11 +40,10 @@ class VideoRater:
                     )
                     QuotaCounter.reduce_quota_of(client_index, 50)
                     try:
-                        response = request.execute()
-                        if response == "":
-                            self.print(vid, " Done")
+                        request.execute()
                     except google_errors.HttpError as e:
                         handle_http_exception(e, self.print)
                         break
+                time.sleep(0.01)
         self.print("Rating process finished")
 

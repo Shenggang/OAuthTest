@@ -159,8 +159,10 @@ class MainWindow:
         self._mainframe.master.destroy()
 
     def _insert_handle(self, place, string):
+        fully_scrolled_down = self._log_display.yview()[1] == 1.0
         self._log_display.insert(place, string)
-        self._log_display.yview(END)
+        if fully_scrolled_down:
+            self._log_display.yview(END)
 
     def _update_vids(self):
         thread = Thread(target=self._video_list.update)
