@@ -20,8 +20,8 @@ class VideoRater:
                 client_index = cred.client_index
                 quota = QuotaCounter.get_quota_of(client_index)
                 self.print("Client %d has %d remaining quota" % (client_index, quota))
-                if quota < 100:
-                    self.print("Client %d has run out of quota" % client_index)
+                if quota < 51:
+                    self.print("Client %d has not enough quota" % client_index)
                     break
                 QuotaCounter.reduce_quota_of(client_index, 1)
                 request = youtube.videos().getRating(

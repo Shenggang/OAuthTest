@@ -58,6 +58,7 @@ class MainWindow:
         self._account_list.heading('Client Index', text='客户端')
         ys = ttk.Scrollbar(self._mainframe, orient='vertical', command=self._account_list.yview)
         ys.grid(column=3, row=0, sticky=(N, S, W))
+        self._account_list.config(yscrollcommand=ys.set)
 
     def __initialize_log_display(self):
         self._log_display = Text(self._mainframe, width=40, height=15)

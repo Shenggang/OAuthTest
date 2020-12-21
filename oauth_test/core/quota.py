@@ -23,7 +23,6 @@ class QuotaCounter:
                     for i in range(len(quotas)):
                         QuotaCounter._quota_available[i] = int(quotas[i])
                     QuotaCounter._cur_day = datetime.date.fromisoformat(content['Date_in_PST'])
-                    print(QuotaCounter._cur_day)
                     if not QuotaCounter._cur_day:
                         QuotaCounter._cur_day = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
                         QuotaCounter._quota_available = [QuotaCounter.quota_limit] * len(QuotaCounter._quota_available)
