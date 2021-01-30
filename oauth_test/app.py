@@ -136,8 +136,13 @@ class MainWindow:
 
     def _authenticate(self):
         self._auth_btn.config(state='disabled')
+
         if self._c_store.authenticate() == 1:
-            self._add_entry(self._c_store[-1])
+            try:
+                self._add_entry(self._c_store[-1])
+            except TclError:
+                self._c_store.delete_at(len(self._c_store)-1)
+                self._insert_handle('end', "Account already exist, authentication failed\n")
             self._acc_num.set(str(len(self._c_store)))
         self._auth_btn.after(4000, lambda: self._auth_btn.config(state='active'))
 
